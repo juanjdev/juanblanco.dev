@@ -1,0 +1,50 @@
+---
+// frontmatter: sólo datos de navegación
+const navItems = [
+  { href: '#about',    label: 'About' },
+  { href: '#projects', label: 'Projects' },
+  { href: '#timeline', label: 'Experience' },
+  { href: '#blog',     label: 'Blog' },
+  { href: '#contact',  label: 'Contact' },
+];
+---
+<nav
+  class="fixed inset-x-0 top-0 z-50 bg-transparent transition-all duration-300"
+  id="site-nav"
+>
+  <div class="max-w-7xl mx-auto px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <span class="text-xl font-bold text-navy">JJ</span>
+
+      <!-- Desktop links only -->
+      <div class="hidden md:flex items-baseline space-x-8">
+        {navItems.map(item => (
+          <a
+            href={item.href}
+            href={item.href}
+            class="text-charcoal hover:text-mint px-3 py-2 text-sm font-medium transition-colors duration-200"
+          >
+            {item.label}
+          </a>
+        ))}
+        <button
+          class="px-3 py-1 border border-navy rounded cursor-pointer hover:bg-mint hover:text-white transition-all duration-200"
+        >
+          Download CV
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<script type="module">
+  // Scroll shadow effect
+  const nav = document.getElementById('site-nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle(
+      'bg-white/95 backdrop-blur-sm shadow-sm',
+      window.scrollY > 50
+    );
+    nav.classList.toggle('bg-transparent', window.scrollY <= 50);
+  });
+</script>

@@ -1,0 +1,15 @@
+---
+import Header from '../components/Header.astro';
+export interface Props { title: string; }
+const { title } = Astro.props;
+---
+<html lang="en">
+  <head>…</head>
+  <body class="flex flex-col min-h-screen">
+    <Header />
+    <main class="flex-grow mt-16"><!-- mt-16 para dejar espacio debajo del header -->
+      <slot />
+    </main>
+    <!-- Footer… -->
+  </body>
+</html>

@@ -1,0 +1,17 @@
+---
+// Definimos una prop opcional “children” y una prop “onClick”
+// (aunque Astro no maneja eventos nativamente como React,
+// puedes usar client directives para hidratarlo en el cliente)
+export interface Props {
+  children?: string;
+}
+const { children } = Astro.props;
+const id = `btn-${Math.random().toString(36).slice(2)}`;
+import '../styles/global.css';
+---
+<button
+  class="px-4 py-2 bg-black text-white rounded-lg hover:bg-coral transition hover:bg-blue-900w  cursor-pointer"
+  type="button"
+>
+  {children ?? 'Click me'}
+</button>
