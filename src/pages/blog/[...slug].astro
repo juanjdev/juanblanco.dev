@@ -1,0 +1,209 @@
+---
+import { getCollection } from 'astro:content';
+import ContentLayout from '../../layouts/ContentLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import '../../styles/global.css';
+import '../../styles/blog.css';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: post,
+  }));
+}
+
+const post = Astro.props;
+const { Content } = await post.render();
+
+// Posts relacionados (misma categoría)
+const allPosts = await getCollection('blog');
+const relatedPosts = allPosts
+  .filter(p => p.slug !== post.slug && p.data.category === post.data.category && !p.data.draft)
+  .slice(0, 3);
+
+// Formatear fecha
+function formatDate(date: Date) {
+  return new Intl.DateTimeFormat('es-ES', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
+}
+
+// Tiempo de lectura estimado (aprox 200 palabras por minuto)
+const contentLength = post.body.length;
+const wordsPerMinute = 200;
+const readingTime = Math.ceil(contentLength / 5 / wordsPerMinute);
+
+// Breadcrumb items
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Blog', href: '/blog' },
+  { label: post.data.title }
+];
+---
+
+<ContentLayout title={`${post.data.title} - Blog - Juan José Blanco`}>
+  <Breadcrumb items={breadcrumbItems} />
+  <article class="min-h-screen pt-20 pb-16">
+    <div class="max-w-4xl mx-auto px-4">
+
+      <!-- Header del post -->
+      <header class="mb-12">
+        <div class="mb-6">
+          <div class="flex flex-wrap items-center gap-4 mb-4">
+            <span class={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+              ${post.data.category === 'tech' ? 'bg-blue-100 text-blue-800' :
+                post.data.category === 'personal' ? 'bg-green-100 text-green-800' :
+                post.data.category === 'tutorial' ? 'bg-purple-100 text-purple-800' :
+                post.data.category === 'thoughts' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-gray-100 text-gray-800'}`}>
+              {post.data.category === 'tech' ? 'Technology' :
+               post.data.category === 'personal' ? 'Personal' :
+               post.data.category === 'tutorial' ? 'Tutorial' :
+               post.data.category === 'thoughts' ? 'Thoughts' : post.data.category}
+            </span>
+            {post.data.featured && (
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-dark-teal text-white">
+                Featured
+              </span>
+            )}
+          </div>
+
+          <h1 class="text-4xl md:text-5xl font-bold text-dark-navy leading-tight mb-6">
+            {post.data.title}
+          </h1>
+
+          <p class="text-xl text-gray-600 leading-relaxed mb-8">
+            {post.data.description}
+          </p>
+
+          <div class="flex flex-wrap items-center gap-6 text-sm text-gray-500 mb-8">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <time>{formatDate(post.data.publishDate)}</time>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{readingTime} min de lectura</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span>{post.data.author}</span>
+            </div>
+          </div>
+
+          <!-- Tags -->
+          {post.data.tags.length > 0 && (
+            <div class="flex flex-wrap gap-2 mb-8">
+              {post.data.tags.map(tag => (
+                <span class="inline-flex items-center px-3 py-1 rounded text-sm font-medium bg-gray-100 text-gray-700">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <!-- Imagen principal -->
+        {post.data.image && (
+          <div class="aspect-video bg-gray-100 rounded-lg overflow-hidden mb-8">
+            <img
+              src={post.data.image}
+              alt={post.data.imageAlt || post.data.title}
+              class="w-full h-full object-cover"
+            />
+          </div>
+        )}
+      </header>
+
+      <!-- Contenido del post -->
+      <div class="blog-content max-w-none">
+        <Content />
+      </div>
+
+      <!-- Información de actualización -->
+      {post.data.updatedDate && (
+        <div class="mt-8 p-4 bg-gray-50 rounded-lg">
+          <p class="text-sm text-gray-600">
+            <strong>Última actualización:</strong> {formatDate(post.data.updatedDate)}
+          </p>
+        </div>
+      )}
+
+      <!-- CTA de contacto -->
+      <div class="mt-16 p-8 bg-gray-50 rounded-lg text-center">
+        <h3 class="text-2xl font-bold text-dark-navy mb-4">
+          Did you like this post?
+        </h3>
+        <p class="text-gray-600 mb-6">
+          If you have questions or want to discuss this topic, don't hesitate to contact me.
+        </p>
+        <a
+          href="/#contact"
+          class="inline-flex items-center gap-2 bg-dark-teal hover:bg-medium-teal text-white px-8 py-3 rounded-md text-lg transition-colors duration-300"
+        >
+          Contact me
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Posts relacionados -->
+    {relatedPosts.length > 0 && (
+      <div class="mt-16 border-t border-gray-200 pt-16">
+        <div class="max-w-6xl mx-auto px-4">
+          <h3 class="text-2xl font-bold text-dark-navy mb-8 text-center">
+            Related posts
+          </h3>
+          <div class="grid md:grid-cols-3 gap-8">
+            {relatedPosts.map(relatedPost => (
+              <article class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+                {relatedPost.data.image && (
+                  <div class="aspect-video bg-gray-100 overflow-hidden">
+                    <img
+                      src={relatedPost.data.image}
+                      alt={relatedPost.data.imageAlt || relatedPost.data.title}
+                      class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                )}
+                <div class="p-6">
+                  <time class="text-sm text-gray-500 mb-2 block">
+                    {formatDate(relatedPost.data.publishDate)}
+                  </time>
+                  <a href={`/blog/${relatedPost.slug}`} class="block group">
+                    <h4 class="text-lg font-semibold text-dark-navy mb-3 group-hover:text-dark-teal transition-colors duration-300">
+                      {relatedPost.data.title}
+                    </h4>
+                  </a>
+                  <p class="text-gray-600 text-sm leading-relaxed mb-4">
+                    {relatedPost.data.description}
+                  </p>
+                  <a
+                    href={`/blog/${relatedPost.slug}`}
+                    class="inline-flex items-center gap-2 text-dark-teal hover:text-medium-teal font-medium transition-colors duration-300 text-sm"
+                  >
+                    Read more
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+  </article>
+</ContentLayout>

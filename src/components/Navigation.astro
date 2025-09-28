@@ -1,50 +1,196 @@
 ---
-// frontmatter: sólo datos de navegación
-const navItems = [
-  { href: '#about',    label: 'About' },
-  { href: '#projects', label: 'Projects' },
-  { href: '#timeline', label: 'Experience' },
-  { href: '#blog',     label: 'Blog' },
-  { href: '#contact',  label: 'Contact' },
-];
+// Navigation component with scroll-based floating animation
 ---
-<nav
-  class="fixed inset-x-0 top-0 z-50 bg-transparent transition-all duration-300"
-  id="site-nav"
->
-  <div class="max-w-7xl mx-auto px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16">
-      <span class="text-xl font-bold text-navy">JJ</span>
+<nav class="fixed top-0 w-full z-50" id="navbar">
+  <div class="navbar-container w-full mx-0 mt-0 rounded-none bg-white/80 backdrop-blur-sm border-transparent transition-all duration-500 ease-in-out">
+    <div class="max-w-6xl mx-auto px-6 py-4 transition-all duration-500 ease-in-out">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <!-- Icon placeholder - replace with your logo -->
+          <img
+            src="/logo.svg"
+            alt="AC Logo"
+            class="w-8 h-8"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+          />
+          <span class="font-mono font-semibold text-dark-teal text-lg" style="display: none;">AC</span>
+        </div>
 
-      <!-- Desktop links only -->
-      <div class="hidden md:flex items-baseline space-x-8">
-        {navItems.map(item => (
-          <a
-            href={item.href}
-            href={item.href}
-            class="text-charcoal hover:text-mint px-3 py-2 text-sm font-medium transition-colors duration-200"
+        <div class="hidden md:flex items-center space-x-8">
+          <button
+            data-scroll-to="about"
+            class="text-gray-600 hover:text-gray-900 transition-colors duration-300 text-sm scroll-link nav-item"
+            data-section="about"
           >
-            {item.label}
-          </a>
-        ))}
+            About
+          </button>
+          <button
+            data-scroll-to="projects"
+            class="text-gray-600 hover:text-gray-900 transition-colors duration-300 text-sm scroll-link nav-item"
+            data-section="projects"
+          >
+            Projects
+          </button>
+          <button
+            data-scroll-to="skills"
+            class="text-gray-600 hover:text-gray-900 transition-colors duration-300 text-sm scroll-link nav-item"
+            data-section="skills"
+          >
+            Skills
+          </button>
+          <button
+            data-scroll-to="blog"
+            class="text-gray-600 hover:text-gray-900 transition-colors duration-300 text-sm scroll-link nav-item"
+            data-section="blog"
+          >
+            Blog
+          </button>
+          <button
+            data-scroll-to="contact"
+            class="text-gray-600 hover:text-gray-900 transition-colors duration-300 text-sm scroll-link nav-item"
+            data-section="contact"
+          >
+            Contact
+          </button>
+        </div>
+
         <button
-          class="px-3 py-1 border border-navy rounded cursor-pointer hover:bg-mint hover:text-white transition-all duration-200"
+          data-scroll-to="contact"
+          class="bg-dark-teal hover:bg-medium-teal text-white px-6 py-2 text-sm rounded-md transition-colors duration-300 scroll-link"
         >
-          Download CV
+          Get in touch
         </button>
       </div>
     </div>
   </div>
 </nav>
 
-<script type="module">
-  // Scroll shadow effect
-  const nav = document.getElementById('site-nav');
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle(
-      'bg-white/95 backdrop-blur-sm shadow-sm',
-      window.scrollY > 50
-    );
-    nav.classList.toggle('bg-transparent', window.scrollY <= 50);
+<script>
+  let isScrolled = false;
+  let ticking = false;
+
+  function updateNavbar() {
+    const scrolled = window.scrollY > 50;
+    const navbar = document.getElementById('navbar');
+    const container = navbar?.querySelector('.navbar-container');
+    const content = navbar?.querySelector('.max-w-6xl');
+
+    if (scrolled !== isScrolled) {
+      isScrolled = scrolled;
+
+      if (container && content) {
+        if (isScrolled) {
+          // Floating state
+          container.style.cssText = `
+            width: 50%;
+            margin: 16px auto 0 auto;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgb(229, 231, 235);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+          `;
+          content.style.cssText = `
+            max-width: 72rem;
+            margin: 0 auto;
+            padding: 12px 24px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+          `;
+        } else {
+          // Full width state
+          container.style.cssText = `
+            width: 100%;
+            margin: 0;
+            border-radius: 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(4px);
+            border: 1px solid transparent;
+            box-shadow: none;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+          `;
+          content.style.cssText = `
+            max-width: 72rem;
+            margin: 0 auto;
+            padding: 16px 24px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+          `;
+        }
+      }
+    }
+    ticking = false;
+  }
+
+  function handleScroll() {
+    if (!ticking) {
+      requestAnimationFrame(updateNavbar);
+      ticking = true;
+    }
+  }
+
+  function scrollToSection(sectionId: string) {
+    const element = document.getElementById(sectionId);
+    element?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Active section detection
+  function updateActiveSection() {
+    const sections = ['about', 'projects', 'skills', 'contact'];
+    const navItems = document.querySelectorAll('.nav-item');
+
+    let currentSection = '';
+
+    // Check which section is currently in view
+    for (const sectionId of sections) {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        // Consider section active if it's in the upper half of viewport
+        if (rect.top <= window.innerHeight / 3 && rect.bottom >= window.innerHeight / 3) {
+          currentSection = sectionId;
+          break;
+        }
+      }
+    }
+
+    // Update nav item styles
+    navItems.forEach(item => {
+      const section = item.getAttribute('data-section');
+      if (section === currentSection) {
+        // Active state
+        item.className = 'text-dark-teal font-semibold transition-colors duration-300 text-sm scroll-link nav-item';
+      } else {
+        // Default state
+        item.className = 'text-gray-600 hover:text-gray-900 transition-colors duration-300 text-sm scroll-link nav-item';
+      }
+    });
+  }
+
+  function combinedScrollHandler() {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        updateNavbar();
+        updateActiveSection();
+      });
+      ticking = true;
+    }
+  }
+
+  // Combined scroll listener
+  window.addEventListener('scroll', combinedScrollHandler, { passive: true });
+
+  // Add click handlers for scroll links
+  document.querySelectorAll('.scroll-link').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const target = (e.target as HTMLElement).getAttribute('data-scroll-to');
+      if (target) {
+        scrollToSection(target);
+        // Update active state immediately after clicking
+        setTimeout(updateActiveSection, 100);
+      }
+    });
   });
+
+  // Initial check
+  updateActiveSection();
 </script>

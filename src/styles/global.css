@@ -1,1 +1,27 @@
 @import "tailwindcss";
+
+:root {
+  /* Orange Drip Color Palette */
+  --dark-navy: #051821;
+  --dark-teal: #1A4645;
+  --medium-teal: #366867;
+  --accent-orange: #F58300;
+  --accent-yellow: #F8BC24;
+}
+
+/* Custom color classes */
+.bg-dark-navy { background-color: var(--dark-navy); }
+.bg-dark-teal { background-color: var(--dark-teal); }
+.bg-medium-teal { background-color: var(--medium-teal); }
+.bg-accent-orange { background-color: var(--accent-orange); }
+.bg-accent-yellow { background-color: var(--accent-yellow); }
+
+.text-dark-navy { color: var(--dark-navy); }
+.text-dark-teal { color: var(--dark-teal); }
+.text-medium-teal { color: var(--medium-teal); }
+.text-accent-orange { color: var(--accent-orange); }
+.text-accent-yellow { color: var(--accent-yellow); }
+
+.border-dark-navy { border-color: var(--dark-navy); }
+.border-dark-teal { border-color: var(--dark-teal); }
+.border-medium-teal { border-color: var(--medium-teal); }

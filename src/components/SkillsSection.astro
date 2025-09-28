@@ -1,0 +1,107 @@
+---
+import SkillCard from './SkillCard.astro';
+import { skillsData, tabs } from '../data/skills.ts';
+---
+<section id="skills" class="py-20 bg-gray-50">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="text-center mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold text-dark-navy mb-6">
+        Technologies & Expertise
+      </h2>
+      <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+        A comprehensive toolkit built through years of crafting digital experiences
+      </p>
+    </div>
+
+    <div class="mb-8">
+      <div class="flex flex-wrap justify-center gap-4">
+        {tabs.map((tab, index) => (
+          <button
+            data-tab={tab.id}
+            class={`px-6 py-3 rounded-full font-medium transition-all duration-300 tab-button ${
+              index === 0
+                ? 'bg-dark-teal text-white'
+                : 'bg-white text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <div class="skills-container">
+      {Object.entries(skillsData).map(([categoryKey, categoryData], index) => (
+        <div
+          data-content={categoryKey}
+          class={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 tab-content ${
+            index !== 0 ? 'hidden' : ''
+          }`}
+        >
+          {categoryData.skills.map((skill) => (
+            <SkillCard {...skill} />
+          ))}
+        </div>
+      ))}
+    </div>
+
+    <div class="text-center mt-12">
+      <h3 class="text-2xl font-bold text-dark-navy mb-4">Frontend</h3>
+      <p class="text-gray-600 italic">Crafting pixel-perfect user interfaces</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Tab functionality
+  function initTabs() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const targetTab = button.getAttribute('data-tab');
+
+        // Update button states
+        tabButtons.forEach(btn => {
+          if (btn.getAttribute('data-tab') === targetTab) {
+            btn.className = 'px-6 py-3 rounded-full font-medium transition-all duration-300 tab-button bg-dark-teal text-white';
+          } else {
+            btn.className = 'px-6 py-3 rounded-full font-medium transition-all duration-300 tab-button bg-white text-gray-600 hover:text-gray-900';
+          }
+        });
+
+        // Update content visibility
+        tabContents.forEach(content => {
+          if (content.getAttribute('data-content') === targetTab) {
+            content.classList.remove('hidden');
+          } else {
+            content.classList.add('hidden');
+          }
+        });
+
+        // Update section description dynamically
+        const sectionTitle = document.querySelector('#skills .text-center h3');
+        const sectionDesc = document.querySelector('#skills .text-center p.italic');
+
+        // Use the imported skillsData structure
+        const skillsData = {
+          frontend: { title: 'Frontend', description: 'Crafting pixel-perfect user interfaces' },
+          backend: { title: 'Backend', description: 'Building robust server-side solutions' },
+          cloud: { title: 'Cloud & DevOps', description: 'Scalable infrastructure and deployment' },
+          tools: { title: 'Tools & CMS', description: 'Content management and development tools' },
+          ai: { title: 'AI & ML', description: 'Artificial intelligence and machine learning' }
+        };
+
+        if (sectionTitle && sectionDesc && targetTab && skillsData[targetTab as keyof typeof skillsData]) {
+          const categoryData = skillsData[targetTab as keyof typeof skillsData];
+          sectionTitle.textContent = categoryData.title;
+          sectionDesc.textContent = categoryData.description;
+        }
+      });
+    });
+  }
+
+  // Initialize when DOM is loaded
+  document.addEventListener('DOMContentLoaded', initTabs);
+</script>

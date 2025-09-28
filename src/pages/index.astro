@@ -1,22 +1,464 @@
 ---
-import Button from '../components/Button.astro';
-import CookingHeader from '../components/CookingHeader.astro';
-import Header from '../components/Header.astro';
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import SkillsSection from '../components/SkillsSection.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { getFeaturedProjects } from '../data/projects.ts';
+import { getCollection } from 'astro:content';
 import '../styles/global.css';
+
+// Get featured projects for homepage
+const projects = getFeaturedProjects();
+
+// Get featured blog posts
+const allPosts = await getCollection('blog');
+const featuredPosts = allPosts
+  .filter(post => post.data.featured && !post.data.draft)
+  .sort((a, b) => new Date(b.data.publishDate).getTime() - new Date(a.data.publishDate).getTime())
+  .slice(0, 3);
+
+// Format date helper
+function formatDate(date: Date) {
+  return new Intl.DateTimeFormat('es-ES', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
+}
+
+// EmailJS environment variables
+const EMAILJS_PUBLIC_KEY = import.meta.env.PUBLIC_EMAILJS_PUBLIC_KEY;
+const EMAILJS_SERVICE_ID = import.meta.env.PUBLIC_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = import.meta.env.PUBLIC_EMAILJS_TEMPLATE_ID;
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>juanblanco.dev</title>
-	</head>
-	<body class="p-8">
-		<Header>
-			
-		</Header>
-		<CookingHeader></CookingHeader>
-	</body>
-</html>
+<Layout title="Juan José Blanco - Full-Stack Developer">
+  <Hero />
+
+  <!-- About Section -->
+  <section id="about" class="py-20 bg-white">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <h2 class="text-4xl md:text-5xl font-bold text-dark-navy mb-6">
+        Your shortcut to modern web development.
+      </h2>
+      <p class="text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+        Show users what to do, fix drop-off points, and keep them engaged with contextual experiences.
+      </p>
+
+      <div class="grid md:grid-cols-2 gap-8 mt-16">
+        <div class="bg-gray-50 p-8 rounded-lg">
+          <div class="w-12 h-12 bg-dark-teal rounded-lg flex items-center justify-center mb-4 mx-auto">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-dark-navy mb-3">Full-Stack Expertise</h3>
+          <p class="text-gray-600">From React frontends to Node.js backends, I build complete solutions that scale with your business needs.</p>
+        </div>
+
+        <div class="bg-gray-50 p-8 rounded-lg">
+          <div class="w-12 h-12 bg-dark-teal rounded-lg flex items-center justify-center mb-4 mx-auto">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-dark-navy mb-3">Performance Focused</h3>
+          <p class="text-gray-600">Optimized code, fast loading times, and seamless user experiences across all devices and platforms.</p>
+        </div>
+
+        <div class="bg-gray-50 p-8 rounded-lg">
+          <div class="w-12 h-12 bg-dark-teal rounded-lg flex items-center justify-center mb-4 mx-auto">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-dark-navy mb-3">AI Integration</h3>
+          <p class="text-gray-600">Leverage cutting-edge AI to create intelligent applications that understand and adapt to user behavior.</p>
+        </div>
+
+        <div class="bg-gray-50 p-8 rounded-lg">
+          <div class="w-12 h-12 bg-dark-teal rounded-lg flex items-center justify-center mb-4 mx-auto">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-dark-navy mb-3">Modern Stack</h3>
+          <p class="text-gray-600">Using the latest technologies like Next.js, TypeScript, and cloud platforms for robust, scalable applications.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects Section -->
+  <section id="projects" class="py-20 bg-gray-50">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl md:text-5xl font-bold text-dark-navy mb-6">
+          Fast to integrate, built to fit.
+        </h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+          From demo to production in minutes, with context-aware solutions and full control over behavior, tone, and UI.
+        </p>
+      </div>
+
+      {projects.length > 0 ? (
+        <div>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {projects.map((project) => (
+              <ProjectCard {...project} />
+            ))}
+          </div>
+
+          <div class="text-center">
+            <a
+              href="/projects"
+              class="inline-flex items-center gap-2 text-dark-teal hover:text-medium-teal font-medium transition-colors duration-300"
+            >
+              View all projects
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      ) : (
+        <div class="text-center py-16">
+          <h3 class="text-xl font-semibold text-gray-700 mb-4">Projects coming soon</h3>
+          <p class="text-gray-500 mb-6">I'm currently working on exciting new projects to showcase here.</p>
+          <a
+            href="/#contact"
+            class="inline-flex items-center gap-2 text-dark-teal hover:text-medium-teal font-medium transition-colors duration-300"
+          >
+            Contact me for collaborations
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Skills Section -->
+  <SkillsSection />
+
+  <!-- Blog Section -->
+  <section id="blog" class="py-20 bg-white">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center mb-16">
+        <h2 class="text-4xl md:text-5xl font-bold text-dark-navy mb-6">
+          Latest Insights
+        </h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+          I share my experience in web development, technology and technical leadership through articles and personal insights.
+        </p>
+      </div>
+
+      {featuredPosts.length > 0 ? (
+        <div>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {featuredPosts.map(post => (
+              <article class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 group">
+                {post.data.image && (
+                  <div class="aspect-video bg-gray-100 overflow-hidden">
+                    <img
+                      src={post.data.image}
+                      alt={post.data.imageAlt || post.data.title}
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                )}
+                <div class="p-6">
+                  <div class="flex items-center gap-4 mb-4">
+                    <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                      ${post.data.category === 'tech' ? 'bg-blue-100 text-blue-800' :
+                        post.data.category === 'personal' ? 'bg-green-100 text-green-800' :
+                        post.data.category === 'tutorial' ? 'bg-purple-100 text-purple-800' :
+                        post.data.category === 'thoughts' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-gray-100 text-gray-800'}`}>
+                      {post.data.category === 'tech' ? 'Technology' :
+                       post.data.category === 'personal' ? 'Personal' :
+                       post.data.category === 'tutorial' ? 'Tutorial' :
+                       post.data.category === 'thoughts' ? 'Thoughts' : post.data.category}
+                    </span>
+                    <time class="text-sm text-gray-500">
+                      {formatDate(post.data.publishDate)}
+                    </time>
+                  </div>
+                  <a href={`/blog/${post.slug}`} class="block group">
+                    <h3 class="text-xl font-semibold text-dark-navy mb-3 group-hover:text-dark-teal transition-colors duration-300">
+                      {post.data.title}
+                    </h3>
+                  </a>
+                  <p class="text-gray-600 mb-4 leading-relaxed">
+                    {post.data.description}
+                  </p>
+                  <div class="flex flex-wrap gap-2 mb-4">
+                    {post.data.tags.slice(0, 2).map(tag => (
+                      <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                  <a
+                    href={`/blog/${post.slug}`}
+                    class="inline-flex items-center gap-2 text-dark-teal hover:text-medium-teal font-medium transition-colors duration-300"
+                  >
+                    Read more
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div class="text-center">
+            <a
+              href="/blog"
+              class="inline-flex items-center gap-2 bg-dark-teal hover:bg-medium-teal text-white px-8 py-3 rounded-md text-lg transition-colors duration-300"
+            >
+              View all posts
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      ) : (
+        <div class="text-center py-16">
+          <h3 class="text-xl font-semibold text-gray-700 mb-4">Blog coming soon</h3>
+          <p class="text-gray-500 mb-6">I'm preparing interesting content about web development and technology.</p>
+          <a
+            href="/#contact"
+            class="inline-flex items-center gap-2 text-dark-teal hover:text-medium-teal font-medium transition-colors duration-300"
+          >
+            Contact me for suggestions
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-20 bg-white">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <h2 class="text-4xl md:text-5xl font-bold text-dark-navy mb-6">
+        Let's build something amazing together.
+      </h2>
+      <p class="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
+        Ready to bring your ideas to life? Get in touch and let's discuss how we can create exceptional digital experiences.
+      </p>
+
+      <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12">
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <div class="flex items-center justify-center w-12 h-12 bg-dark-teal rounded-lg mx-auto mb-4">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-dark-navy mb-2">Email</h3>
+          <p class="text-gray-600">juanjb.dev@gmail.com</p>
+        </div>
+
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <div class="flex items-center justify-center w-12 h-12 bg-medium-teal rounded-lg mx-auto mb-4">
+            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-dark-navy mb-2">LinkedIn</h3>
+          <p class="text-gray-600">
+            <a href="https://www.linkedin.com/in/juanj-blanco/" target="_blank" class="text-dark-teal hover:text-medium-teal transition-colors">
+              /juanj-blanco
+            </a>
+          </p>
+        </div>
+
+        <div class="bg-gray-50 p-6 rounded-lg">
+          <div class="flex items-center justify-center w-12 h-12 bg-accent-orange rounded-lg mx-auto mb-4">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold text-dark-navy mb-2">Response Time</h3>
+          <p class="text-gray-600">Usually within 24 hours</p>
+        </div>
+      </div>
+
+      <div class="max-w-lg mx-auto">
+        <form id="contact-form" class="space-y-4">
+          <input
+            type="text"
+            name="from_name"
+            placeholder="Your name"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dark-teal focus:border-transparent"
+          />
+          <input
+            type="email"
+            name="from_email"
+            placeholder="Your email"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dark-teal focus:border-transparent"
+          />
+          <textarea
+            rows="4"
+            name="message"
+            placeholder="Tell me about your project..."
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-dark-teal focus:border-transparent resize-none"
+          ></textarea>
+
+          <!-- Honeypot field (hidden from users, visible to bots) -->
+          <input
+            type="text"
+            name="website"
+            style="position: absolute; left: -9999px; opacity: 0; pointer-events: none;"
+            tabindex="-1"
+            autocomplete="off"
+          />
+          <button
+            type="submit"
+            id="submit-btn"
+            class="w-full bg-dark-teal hover:bg-medium-teal text-white px-8 py-3 rounded-md text-lg transition-colors duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg id="send-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            <svg id="loading-icon" class="w-5 h-5 animate-spin hidden" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span id="btn-text">Send Message</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<!-- EmailJS Script -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script type="text/javascript" define:vars={{ EMAILJS_PUBLIC_KEY, EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID }}>
+  // Environment variables from Astro
+  const EMAILJS_CONFIG = {
+    publicKey: EMAILJS_PUBLIC_KEY,
+    serviceId: EMAILJS_SERVICE_ID,
+    templateId: EMAILJS_TEMPLATE_ID
+  };
+
+  (function() {
+    // Initialize EmailJS with environment variable
+    emailjs.init(EMAILJS_CONFIG.publicKey);
+  })();
+
+  // Anti-spam protection
+  let lastSubmission = 0;
+  const COOLDOWN_TIME = 30000; // 30 seconds cooldown
+
+  document.getElementById('contact-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+    const sendIcon = document.getElementById('send-icon');
+    const loadingIcon = document.getElementById('loading-icon');
+
+    // Anti-spam: Check cooldown time
+    const now = Date.now();
+    if (now - lastSubmission < COOLDOWN_TIME) {
+      const remainingTime = Math.ceil((COOLDOWN_TIME - (now - lastSubmission)) / 1000);
+      btnText.textContent = `Wait ${remainingTime}s`;
+      submitBtn.classList.add('bg-yellow-600');
+      setTimeout(() => {
+        btnText.textContent = 'Send Message';
+        submitBtn.classList.remove('bg-yellow-600');
+        submitBtn.classList.add('bg-dark-teal', 'hover:bg-medium-teal');
+      }, 2000);
+      return;
+    }
+
+    // Anti-spam: Basic content validation
+    const formData = new FormData(this);
+    const message = formData.get('message').toString();
+    const name = formData.get('from_name').toString();
+    const honeypot = formData.get('website').toString();
+
+    // Check honeypot (bots usually fill this field)
+    if (honeypot) {
+      console.log('Bot detected via honeypot');
+      // Silently fail for bots (don't show error message)
+      return;
+    }
+
+    // Check for suspicious patterns
+    if (message.length < 10 || message.includes('http://') || message.includes('https://') ||
+        name.includes('http') || message.toLowerCase().includes('seo') ||
+        message.toLowerCase().includes('marketing') || message.toLowerCase().includes('cheap')) {
+      btnText.textContent = 'Invalid message';
+      submitBtn.classList.add('bg-red-600');
+      setTimeout(() => {
+        btnText.textContent = 'Send Message';
+        submitBtn.classList.remove('bg-red-600');
+        submitBtn.classList.add('bg-dark-teal', 'hover:bg-medium-teal');
+      }, 3000);
+      return;
+    }
+
+    // Show loading state
+    submitBtn.disabled = true;
+    btnText.textContent = 'Sending...';
+    sendIcon.classList.add('hidden');
+    loadingIcon.classList.remove('hidden');
+
+    // Update last submission time
+    lastSubmission = now;
+
+    // Send email using EmailJS with environment variables
+    emailjs.sendForm(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, this)
+      .then(function(response) {
+        console.log('SUCCESS!', response.status, response.text);
+
+        // Show success message
+        btnText.textContent = 'Message Sent!';
+        submitBtn.classList.remove('bg-dark-teal', 'hover:bg-medium-teal');
+        submitBtn.classList.add('bg-green-600');
+
+        // Reset form
+        document.getElementById('contact-form').reset();
+
+        // Reset button after 3 seconds
+        setTimeout(() => {
+          submitBtn.disabled = false;
+          btnText.textContent = 'Send Message';
+          sendIcon.classList.remove('hidden');
+          loadingIcon.classList.add('hidden');
+          submitBtn.classList.remove('bg-green-600');
+          submitBtn.classList.add('bg-dark-teal', 'hover:bg-medium-teal');
+        }, 3000);
+
+      }, function(error) {
+        console.log('FAILED...', error);
+
+        // Show error message
+        btnText.textContent = 'Failed to send';
+        submitBtn.classList.remove('bg-dark-teal', 'hover:bg-medium-teal');
+        submitBtn.classList.add('bg-red-600');
+
+        // Reset button after 3 seconds
+        setTimeout(() => {
+          submitBtn.disabled = false;
+          btnText.textContent = 'Send Message';
+          sendIcon.classList.remove('hidden');
+          loadingIcon.classList.add('hidden');
+          submitBtn.classList.remove('bg-red-600');
+          submitBtn.classList.add('bg-dark-teal', 'hover:bg-medium-teal');
+        }, 3000);
+      });
+  });
+</script>

@@ -1,0 +1,238 @@
+---
+import { getCollection } from 'astro:content';
+import ContentLayout from '../../layouts/ContentLayout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import '../../styles/global.css';
+
+// Obtener todos los posts del blog
+const allPosts = await getCollection('blog');
+
+// Filtrar posts no borrador y ordenar por fecha
+const posts = allPosts
+  .filter(post => !post.data.draft)
+  .sort((a, b) => new Date(b.data.publishDate).getTime() - new Date(a.data.publishDate).getTime());
+
+// Posts destacados
+const featuredPosts = posts.filter(post => post.data.featured);
+const regularPosts = posts.filter(post => !post.data.featured);
+
+// Categorías únicas
+const categories = [...new Set(posts.map(post => post.data.category))];
+
+// Formatear fecha
+function formatDate(date: Date) {
+  return new Intl.DateTimeFormat('es-ES', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
+}
+
+// Breadcrumb items
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: 'Blog' }
+];
+---
+
+<ContentLayout title="Blog - Juan José Blanco">
+  <Breadcrumb items={breadcrumbItems} />
+  <div class="min-h-screen pt-20 pb-16">
+    <div class="max-w-6xl mx-auto px-4">
+
+      <!-- Header del Blog -->
+      <div class="text-center mb-16">
+        <h1 class="text-4xl md:text-6xl font-bold text-dark-navy mb-6">
+          Blog
+        </h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+          Reflections on web development, technology and the digital world.
+          I share experiences, tutorials and thoughts on the latest tech trends.
+        </p>
+      </div>
+
+      <!-- Filtros por categoría -->
+      <div class="flex flex-wrap justify-center gap-4 mb-12">
+        <button
+          class="filter-btn active px-6 py-2 rounded-full font-medium transition-all duration-300 bg-dark-teal text-white"
+          data-category="all"
+        >
+          All
+        </button>
+        {categories.map(category => (
+          <button
+            class="filter-btn px-6 py-2 rounded-full font-medium transition-all duration-300 bg-gray-100 text-gray-700 hover:bg-gray-200"
+            data-category={category}
+          >
+            {category === 'tech' ? 'Technology' :
+             category === 'personal' ? 'Personal' :
+             category === 'tutorial' ? 'Tutorials' :
+             category === 'thoughts' ? 'Thoughts' : category}
+          </button>
+        ))}
+      </div>
+
+      <!-- Posts Destacados -->
+      {featuredPosts.length > 0 && (
+        <div class="mb-16">
+          <h2 class="text-2xl font-bold text-dark-navy mb-8">Featured Posts</h2>
+          <div class="grid md:grid-cols-2 gap-8">
+            {featuredPosts.slice(0, 2).map(post => (
+              <article class={`blog-post featured-post bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 ${post.data.category}`}>
+                {post.data.image && (
+                  <div class="aspect-video bg-gray-100 overflow-hidden">
+                    <img
+                      src={post.data.image}
+                      alt={post.data.imageAlt || post.data.title}
+                      class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                )}
+                <div class="p-6">
+                  <div class="flex items-center gap-4 mb-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-dark-teal text-white">
+                      Featured
+                    </span>
+                    <time class="text-sm text-gray-500">
+                      {formatDate(post.data.publishDate)}
+                    </time>
+                  </div>
+                  <a href={`/blog/${post.slug}`} class="block group">
+                    <h3 class="text-xl font-semibold text-dark-navy mb-3 group-hover:text-dark-teal transition-colors duration-300">
+                      {post.data.title}
+                    </h3>
+                  </a>
+                  <p class="text-gray-600 mb-4 leading-relaxed">
+                    {post.data.description}
+                  </p>
+                  <div class="flex flex-wrap gap-2 mb-4">
+                    {post.data.tags.slice(0, 3).map(tag => (
+                      <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                  <a
+                    href={`/blog/${post.slug}`}
+                    class="inline-flex items-center gap-2 text-dark-teal hover:text-medium-teal font-medium transition-colors duration-300"
+                  >
+                    Read more
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Todos los Posts -->
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-dark-navy mb-8">All Posts</h2>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8" id="posts-grid">
+          {[...featuredPosts.slice(2), ...regularPosts].map(post => (
+            <article class={`blog-post bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 ${post.data.category}`}>
+              {post.data.image && (
+                <div class="aspect-video bg-gray-100 overflow-hidden">
+                  <img
+                    src={post.data.image}
+                    alt={post.data.imageAlt || post.data.title}
+                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              )}
+              <div class="p-6">
+                <div class="flex items-center gap-4 mb-4">
+                  <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                    ${post.data.category === 'tech' ? 'bg-blue-100 text-blue-800' :
+                      post.data.category === 'personal' ? 'bg-green-100 text-green-800' :
+                      post.data.category === 'tutorial' ? 'bg-purple-100 text-purple-800' :
+                      post.data.category === 'thoughts' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-gray-100 text-gray-800'}`}>
+                    {post.data.category === 'tech' ? 'Technology' :
+                     post.data.category === 'personal' ? 'Personal' :
+                     post.data.category === 'tutorial' ? 'Tutorial' :
+                     post.data.category === 'thoughts' ? 'Thoughts' : post.data.category}
+                  </span>
+                  <time class="text-sm text-gray-500">
+                    {formatDate(post.data.publishDate)}
+                  </time>
+                </div>
+                <a href={`/blog/${post.slug}`} class="block group">
+                  <h3 class="text-lg font-semibold text-dark-navy mb-3 group-hover:text-dark-teal transition-colors duration-300">
+                    {post.data.title}
+                  </h3>
+                </a>
+                <p class="text-gray-600 mb-4 leading-relaxed text-sm">
+                  {post.data.description}
+                </p>
+                <div class="flex flex-wrap gap-2 mb-4">
+                  {post.data.tags.slice(0, 2).map(tag => (
+                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+                <a
+                  href={`/blog/${post.slug}`}
+                  class="inline-flex items-center gap-2 text-dark-teal hover:text-medium-teal font-medium transition-colors duration-300 text-sm"
+                >
+                  Read more
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <!-- Mensaje si no hay posts -->
+      {posts.length === 0 && (
+        <div class="text-center py-16">
+          <h3 class="text-xl font-semibold text-gray-700 mb-4">There is no available posts.</h3>
+          <p class="text-gray-500">You will have new content soon!</p>
+        </div>
+      )}
+
+    </div>
+  </div>
+</ContentLayout>
+
+<script>
+  // Filtros de categoría
+  function initCategoryFilters() {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const blogPosts = document.querySelectorAll('.blog-post');
+
+    filterButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const category = button.getAttribute('data-category');
+
+        // Actualizar botones activos
+        filterButtons.forEach(btn => {
+          if (btn === button) {
+            btn.className = 'filter-btn active px-6 py-2 rounded-full font-medium transition-all duration-300 bg-dark-teal text-white';
+          } else {
+            btn.className = 'filter-btn px-6 py-2 rounded-full font-medium transition-all duration-300 bg-gray-100 text-gray-700 hover:bg-gray-200';
+          }
+        });
+
+        // Filtrar posts
+        blogPosts.forEach(post => {
+          if (category === 'all' || post.classList.contains(category)) {
+            post.style.display = 'block';
+          } else {
+            post.style.display = 'none';
+          }
+        });
+      });
+    });
+  }
+
+  // Inicializar cuando se carga la página
+  document.addEventListener('DOMContentLoaded', initCategoryFilters);
+</script>
